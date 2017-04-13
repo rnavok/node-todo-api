@@ -1,9 +1,12 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var ObjectID = require('mongodb').ObjectID;
 
 var mongoose = require('./db/mongoose').mongoose;
+
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+
 
 var app = express();
 
@@ -29,6 +32,22 @@ app.get('/todos',(req,res)=>{
     },(err)=>{
         console.log('fatching error',err);
         res.status(400).send(err);
+    });
+});
+
+app.get('/todos/:id',(req,res)=>{    
+
+    
+    if(!ObjectID.isValid(req.params.id))
+        return res.status(400).send('invalid id');
+
+    Todo.findById(req.params.id).then((todo)=>{
+        if (!todo)
+            return res.status(400).send('id not found');
+        res.send({todo});
+    },(err)=>{
+        console.log('fatching error',err);
+        res.status(404).send(err);
     });
 });
 
