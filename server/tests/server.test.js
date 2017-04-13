@@ -98,3 +98,39 @@ describe('GET /todos/:id', () => {
         .end(done);
     });
 });
+
+describe('DELETE /todos/:id', () => {
+    it('should not return value if id is not valid', (done) => {
+        request(app)
+        .delete('/todos/1234')
+        .expect(404)
+        .end(done);
+    });
+
+    it('should return not found of a valid but not existing id', (done) => {
+        request(app)
+        .delete(`/todos/${ObjectID()}`)
+        .expect(404)
+        .end(done);
+    });
+
+    it('should delete the given id recored if it exeists', (done) => {
+        request(app)
+         .delete(`/todos/${idToTest}`)
+        .expect(200)
+        .expect((res) =>{        
+            expect(res.body.todo._id).toBe(idToTest.toString())
+        })
+        .end((err,res)=>{
+            if (err)
+                return done(err);
+
+            Todo.findById(idToTest)
+            .then((todo)=>{
+                expect(todo).toNotExist();
+                done();                
+            }).catch((err)=>done(err))
+            
+        });
+    });
+});
