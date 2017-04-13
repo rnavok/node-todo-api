@@ -51,6 +51,25 @@ app.get('/todos/:id',(req,res)=>{
     });
 });
 
+
+app.delete('/todos/:id',(req,res)=>{    
+
+    
+    if(!ObjectID.isValid(req.params.id))
+        return res.status(404).send('invalid id');
+
+    Todo.findByIdAndRemove(req.params.id).then((todo)=>{
+        if (!todo)
+            return res.status(404).send('id not found');
+        res.send({todo});
+    },(err)=>{
+        console.log('fatching error',err);
+        res.status(404).send();
+    }).catch((e) =>{
+        res.status(404).send();
+    });
+});
+
 app.listen(port , ()=> {
     console.log(`server started on port ${port}`);
 });
