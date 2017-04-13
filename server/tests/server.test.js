@@ -1,17 +1,21 @@
 const expect = require('expect');
 const request = require('supertest');
+var ObjectID = require('mongodb').ObjectID;
 
 var {app} = require('./../server');
 var {Todo} = require('./../models/todo');
 var {User} = require('./../models/user');
 
+const idToTest = ObjectID();
+
 const todos = [
-    {text:'first item in test'},
+    {   _id : idToTest,
+        text:'first item in test'},
     {text:'second item in test'}
 ]
 
 beforeEach((done) => {
-    Todo.remove({}).then(()=>{
+    Todo.remove({}).then(()=>{        
         return Todo.insertMany(todos);
     }).then(()=>{done();})
 });
@@ -44,7 +48,7 @@ describe('POST /todos' , () => {
         request(app)
         .post('/todos')
         .send ({text : badTxt})
-        .expect(400)
+        .expect(404)
         .end((err,res)=>{
              if(err)
              {return done(err)}   
@@ -68,3 +72,29 @@ describe('GET /todos' , ()=>{
         }).end(done);
     });    
 })
+
+describe('GET /todos/:id', () => {
+    it('should not return value if id is not valid', (done) => {
+        request(app)
+        .get('/todos/1234')
+        .expect(404)
+        .end(done);
+    });
+
+    it('should return not found of a valid but not existing id', (done) => {
+        request(app)
+        .get(`/todos/${ObjectID()}`)
+        .expect(404)
+        .end(done);
+    });
+
+    it('should find one resule and return it', (done) => {
+        request(app)
+        .get(`/todos/${idToTest}`)
+        .expect(200)
+        .expect((res) =>{        
+            expect(res.body.todo._id).toBe(idToTest.toString())
+        })
+        .end(done);
+    });
+});

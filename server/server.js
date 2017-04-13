@@ -21,7 +21,7 @@ app.post('/todos',(req,res)=>{
         res.send(doc);        
     },(err)=>{
         console.log(`error while adding`,err);
-        res.status(400).send(err);
+        res.status(404).send(err);
     })
 });
 
@@ -29,9 +29,8 @@ app.post('/todos',(req,res)=>{
 app.get('/todos',(req,res)=>{    
     Todo.find().then((todos)=>{
         res.send({todos});
-    },(err)=>{
-        console.log('fatching error',err);
-        res.status(400).send(err);
+    },(err)=>{        
+        res.status(404).send(err);
     });
 });
 
@@ -39,11 +38,11 @@ app.get('/todos/:id',(req,res)=>{
 
     
     if(!ObjectID.isValid(req.params.id))
-        return res.status(400).send('invalid id');
+        return res.status(404).send('invalid id');
 
     Todo.findById(req.params.id).then((todo)=>{
         if (!todo)
-            return res.status(400).send('id not found');
+            return res.status(404).send('id not found');
         res.send({todo});
     },(err)=>{
         console.log('fatching error',err);
