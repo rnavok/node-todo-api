@@ -11,7 +11,7 @@ const idToTest = ObjectID();
 const todos = [
     {   _id : idToTest,
         text:'first item in test'},
-    {text:'second item in test'}
+       {text:'second item in test'}
 ]
 
 beforeEach((done) => {
@@ -99,6 +99,55 @@ describe('GET /todos/:id', () => {
     });
 });
 
+
+describe('PATCH /todos/:id', () => {
+    it('should not return value if id is not valid', (done) => {
+        request(app)
+        .get('/todos/1234')
+        .expect(404)
+        .end(done);
+    });
+
+    it('should return not found of a valid but not existing id', (done) => {
+        request(app)
+        .get(`/todos/${ObjectID()}`)
+        .expect(404)
+        .end(done);
+    });
+
+    it('should update the item and set the time if complited', (done) => {
+        var newText = 'the new text';
+
+        request(app)
+        .patch(`/todos/${idToTest}`)
+        .send({text: newText, completed:true})
+        .expect(200)
+        .expect((res)=>{            
+
+            expect(res.body.todo.text).toBe(newText);
+            expect(res.body.todo.completed).toBe(true);
+            expect(res.body.todo.completedAt).toBeA('number');
+                        
+        })
+        .end(done)        
+    });
+
+    it('should update the item and set the time if complited', (done) => {
+        var newText = 'the new text';
+
+        request(app)
+        .patch(`/todos/${idToTest}`)
+        .send({text: newText, completed:false})
+        .expect((res)=>{
+            expect(res.body.todo.completedAt).toNotExist();
+            expect(res.body.todo.completed).toBe(false);                        
+        })
+          .end(done);      
+    });
+
+
+});
+
 describe('DELETE /todos/:id', () => {
     it('should not return value if id is not valid', (done) => {
         request(app)
@@ -134,3 +183,4 @@ describe('DELETE /todos/:id', () => {
         });
     });
 });
+

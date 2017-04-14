@@ -77,9 +77,10 @@ app.patch('/todos/:id',(req,res)=>{
 
         
     var body = _.pick(req.body,['text','completed']);
-    console.log(body);
+    console.log(`******* the body is : ${JSON.stringify(body)}`);
 
     if(_.isBoolean(body.completed) && body.completed){
+        console.log('*** IN');
         body.completedAt = new Date().getTime();        
     }else {
         body.completedAt = null;
@@ -89,8 +90,8 @@ app.patch('/todos/:id',(req,res)=>{
         if(!todo){
             return res.status(404).send();        
         }
-        console.log(todo);
-        return res.send(todo);
+
+        return res.send({todo});
     }).catch((err) =>{
           res.status(400).send();  
     })    
