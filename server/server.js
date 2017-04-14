@@ -1,3 +1,5 @@
+var config = require('./config/config');
+
 const _ = require ('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,7 +11,7 @@ var {User} = require('./models/user');
 
 
 var app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
@@ -77,10 +79,10 @@ app.patch('/todos/:id',(req,res)=>{
 
         
     var body = _.pick(req.body,['text','completed']);
-    console.log(`******* the body is : ${JSON.stringify(body)}`);
+    
 
     if(_.isBoolean(body.completed) && body.completed){
-        console.log('*** IN');
+        
         body.completedAt = new Date().getTime();        
     }else {
         body.completedAt = null;
