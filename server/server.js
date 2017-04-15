@@ -20,7 +20,6 @@ app.post('/todos',(req,res)=>{
     var newTodo = new Todo({
         text: req.body.text
     }).save().then((doc)=>{
-        console.log(`item added ${doc}`);
         res.send(doc);        
     },(err)=>{
         console.log(`error while adding`,err);
@@ -98,6 +97,25 @@ app.patch('/todos/:id',(req,res)=>{
           res.status(400).send();  
     })    
 });
+
+app.post('/users',(req,res)=>{    
+    
+    var body = _.pick(req.body,['email','password'])
+    var newUser = new User(body)    ;
+    
+    newUser.save().then((newUser)=>{     
+       return newUser.generateAuthToken();
+    },(err)=>{
+        console.log(`error while adding`,err);
+        res.status(400).send(err);
+    }).then((token) => {
+        res.header('x-auth',token).send(newUser);
+    }).catch((err) => {
+        console.log(`error while adding`,err);
+        res.status(400).send(err);
+    })
+});
+
 
 app.listen(port , ()=> {
     console.log(`server started on port ${port}`);
