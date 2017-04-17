@@ -116,9 +116,19 @@ app.post('/users',(req,res)=>{
     })
 });
 
-
-
-
+app.post('/users/login',(req,res) =>{
+    var body = _.pick(req.body,['email','password']);
+    
+         User.login(body.email,body.password).then((user)=>{            
+            return user.generateAuthToken().then((token)=>{
+                  res.header('x-auth',token).send(user);
+            })           
+        })
+        .catch((err) => {
+            console.log(`error while login`,err);
+            res.status(400).send();
+    })
+});
 
 app.get('/users/me',auth.authnticate,(req,res) =>{
 

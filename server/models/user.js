@@ -80,6 +80,23 @@ UserSchema.methods.toJSON = function () {
     return _.pick(userObj,['email','_id']);  
 }
 
+UserSchema.statics.login = function(email,password){
+     var User = this;  
+  return   User.findOne({email:email}).then((user)=>{
+        if (!user)
+            Promise.reject();
+
+        return new Promise((resolve,reject)=>{
+            bcrypt.compare(password,user.password,(err,res)=>{
+                if(res)
+                    resolve(user) 
+                else
+                    reject();                   
+            })
+    })
+    }).catch((err)=>Promise.reject(err));
+}
+
 UserSchema.methods.generateAuthToken = function(){
     var access = 'auth';
     var idS = this._id.toHexString();

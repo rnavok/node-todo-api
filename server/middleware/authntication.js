@@ -1,4 +1,8 @@
+const _ = require ('lodash');
+
 var {User} = require('./../models/user');
+
+
 
 var authnticate = (req,res,next) =>{
 
