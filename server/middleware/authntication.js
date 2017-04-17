@@ -13,8 +13,8 @@ var authnticate = (req,res,next) =>{
         req.token = token;
         next();
      },(e) =>{
-        res.status(401).send();
+         res.status(401).send();
      })
 };
 
-module.exports = {authnticate};
+module.exports = {authnticate}

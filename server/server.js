@@ -22,8 +22,7 @@ app.post('/todos',(req,res)=>{
         text: req.body.text
     }).save().then((doc)=>{
         res.send(doc);        
-    },(err)=>{
-        console.log(`error while adding`,err);
+    },(err)=>{        
         res.status(404).send(err);
     })
 });
