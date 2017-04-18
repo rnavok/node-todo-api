@@ -231,6 +231,9 @@ describe('POST /users', () => {
                     expect(user).toExist();
                     expect(user.email).toNotBe
                     done();
+                }).catch((err)=>{
+                    if(err)
+                        return done(err);
                 })
             })
         });
@@ -263,6 +266,59 @@ describe('POST /users', () => {
             .expect(400)
             .expect((res)=>{
                 expect(res.body._id).toNotExist();
+            })
+            .end(done)
+    });
+});
+
+describe('POST/users/login', () => {
+    it('should return a user when giving right password and username', (done) => {
+            request(app)
+            .post('/users/login')
+            .send({password : users[1].password,email : users[1].email})
+            .expect(200)
+            .expect((res)=>{
+                expect(res).toExist();
+                expect(res.body.email).toEqual("2@gmail.com");
+                expect(res.headers['x-auth'].toExist);
+            })
+            .end((err,res)=>{
+                if(err)
+                    return done(err);
+
+                User.findById(res.body._id).then((user)=>{
+                    expect(JSON.stringify(user.tokens)).toInclude(res.headers['x-auth']);
+                    done();
+                }).catch((err)=>{
+                    if(err)
+                        return done(err);
+                })
+
+            })
+    });            
+
+
+    it('should return 400 if user name not exsits', (done) => {
+             request(app)
+            .post('/users/login')
+            .send({password : users[0].password,email : "3@gmail.com"})
+            .expect(400)
+            .expect((res)=>{
+                expect(res).toExist();
+                expect(res.body).toEqual({});
+
+            })
+            .end(done)
+    });
+
+    it('should return 401 if password is wrong', (done) => {
+           request(app)
+            .post('/users/login')
+            .send({password : "password3",email : users[0].email})
+            .expect(400)
+            .expect((res)=>{
+                expect(res.body).toEqual({});
+
             })
             .end(done)
     });
