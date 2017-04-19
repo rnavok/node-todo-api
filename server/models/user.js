@@ -56,7 +56,7 @@ UserSchema.statics.findByToken = function(token){
     var User = this;
     var decoded;
     try {
-        decoded = jwt.verify(token,'secret');
+        decoded = jwt.verify(token,process.env.JWT_SECRET);
 
     } catch (error) {
       
@@ -111,7 +111,7 @@ UserSchema.methods.removeToken = function(token){
 UserSchema.methods.generateAuthToken = function(){
     var access = 'auth';
     var idS = this._id.toHexString();
-    var token =  jwt.sign({_id : idS, access} ,'secret').toString();
+    var token =  jwt.sign({_id : idS, access} ,process.env.JWT_SECRET).toString();
     this.tokens.push({access,token});
 
     return this.save().then((user)=>{
