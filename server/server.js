@@ -16,11 +16,13 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-app.post('/todos',(req,res)=>{    
+app.post('/todos',auth.authnticate,(req,res)=>{    
     
     var newTodo = new Todo({
-        text: req.body.text
-    }).save().then((doc)=>{
+        text: req.body.text,
+        _creator : req.user._id
+    })
+    newTodo.save().then((doc)=>{
         res.send(doc);        
     },(err)=>{        
         res.status(404).send(err);
@@ -28,38 +30,38 @@ app.post('/todos',(req,res)=>{
 });
 
 
-app.get('/todos',(req,res)=>{    
-    Todo.find().then((todos)=>{
+app.get('/todos',auth.authnticate,(req,res)=>{    
+    Todo.find({_creator: req.user._id}).then((todos)=>{
         res.send({todos});
     },(err)=>{        
-        res.status(404).send(err);
+        res.status(404).send();
     });
 });
 
-app.get('/todos/:id',(req,res)=>{    
+app.get('/todos/:id',auth.authnticate,(req,res)=>{    
 
     
     if(!ObjectID.isValid(req.params.id))
         return res.status(404).send('invalid id');
 
-    Todo.findById(req.params.id).then((todo)=>{
+    Todo.findOne({_id:req.params.id,_creator : req.user._id}).then((todo)=>{
         if (!todo)
             return res.status(404).send('id not found');
         res.send({todo});
     },(err)=>{
-        console.log('fatching error',err);
-        res.status(404).send(err);
+       
+        res.status(404).send('id not found');
     });
 });
 
 
-app.delete('/todos/:id',(req,res)=>{    
+app.delete('/todos/:id',auth.authnticate,(req,res)=>{    
 
     
     if(!ObjectID.isValid(req.params.id))
         return res.status(404).send('invalid id');
 
-    Todo.findByIdAndRemove(req.params.id).then((todo)=>{
+    Todo.findOneAndRemove({_id:req.params.id,_creator : req.user._id}).then((todo)=>{
         if (!todo)
             return res.status(404).send('id not found');
         res.send({todo});
@@ -71,7 +73,7 @@ app.delete('/todos/:id',(req,res)=>{
     });
 });
 
-app.patch('/todos/:id',(req,res)=>{
+app.patch('/todos/:id',auth.authnticate,(req,res)=>{
     var id =req.params.id;
     if(!ObjectID.isValid(id))
         return res.status(404).send('invalid id');
@@ -87,7 +89,7 @@ app.patch('/todos/:id',(req,res)=>{
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id,{$set:body},{new :true}).then((todo) => {
+    Todo.findOneAndUpdate({_id:id , _creator: req.user._id},{$set:body},{new :true}).then((todo) => {
         if(!todo){
             return res.status(404).send();        
         }
