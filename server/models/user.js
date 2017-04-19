@@ -97,6 +97,17 @@ UserSchema.statics.login = function(email,password){
     }).catch((err)=>Promise.reject(err));
 }
 
+UserSchema.methods.removeToken = function(token){
+        var user = this;
+        return user.update({
+            $pull : {
+                tokens : {
+                    token : token
+                }
+            }})       
+    }
+
+
 UserSchema.methods.generateAuthToken = function(){
     var access = 'auth';
     var idS = this._id.toHexString();
